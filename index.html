@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        async function Get() {
+
+const xhtttp = new XMLHttpRequest();
+
+xhtttp.open('GET', 'https://coronavirus-monitor.p.rapidapi.com/coronavirus/cases_by_country.php', true);
+xhtttp.setRequestHeader('x-rapidapi-host', 'coronavirus-monitor.p.rapidapi.com');
+xhtttp.setRequestHeader('x-rapidapi-key', '250c2ad437mshfe7c3d552edb2b6p171265jsn2e7f7442069f');
+xhtttp.send();
+
+xhtttp.onreadystatechange = function () {
+    if (this.readyState == 4 && this.status == 200) {
+        var datos = JSON.parse(this.responseText);
+        d = datos.countries_stat;
+        //console.log(d);
+        
+        const division =[]
+        d.forEach(function (element) {
+            if(element.total_cases_per_1m_population != "0" || element.deaths_per_1m_population !=0){
+                var a = element.total_cases_per_1m_population
+                var b = element.deaths_per_1m_population
+                var c = a.replace(',','')
+                var d = b.replace(',','')
+                const data = {
+                   country_name: element.country_name,
+                   muertes:  (parseFloat(c)/parseFloat(d)).toFixed(2),
+                   cases: element.cases,
+                   deaths: element.deaths,
+                   region: element.region,
+                   total_recovered: element.total_recovered,
+                   total_cases_per_1m_population: element.total_cases_per_1m_population,
+                   deaths_per_1m_population: element.deaths_per_1m_population
+                 }
+                 division.push(data)
+            }
+        })
+
+        const top_muertes = division.sort( (z,x) => {
+            return z.muertes - x.muertes
+          }).slice(0,10)
+            console.log(top_muertes)
+
+            let res = document.querySelector('#res');
+
+            res.innerHTML = '';
+
+            var cont = 1;
+
+            for (let item of top_muertes) {
+                //console.log(item);
+                res.innerHTML += `<tr>
+                    <td>${cont++}</td>
+                    <td>${item.country_name}</td>
+                    <td>${item.cases}</td>
+                    <td>${item.deaths}</td>
+                    <td>${item.total_recovered}</td>
+                    <td>${item.total_cases_per_1m_population}</td>
+                    <td>${item.deaths_per_1m_population}</td>
+                    <td>${item.muertes}</td>
+                    </tr>`
+            }
+
+           this.countries_stat = top_muertes;
+    }
+}
+}
+
+    </script>
+    <title>COVID-19</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg" style="background-color: #17a2b8;">
+        <a class="navbar-brand" href="#">
+          <h3 style="color: white;">COVID-19</h3>
+        </a>
+      </nav>
+      <br>
+      <br>
+    <h6 class="text-center">
+        RANKING 10 DE LOS PAISES EN LOS CUALES UNA PERSONA TIENE MAYOR POSIBILIDAD DE MUERTE EN UN GRUPO MENOR DE
+        CONTAGIOS
+    </h6>
+    <div class="container col-10" id="app">
+        <div class="row mt-5">
+
+            <div class="formulario">
+                <div class="contenedor-form2">
+                    <div class="row justify-content-center">
+                        <div class="container col-xl-8 l-lg-5 col-md-8 col-sm-10 card">
+                            <table class="table table-hover rounded-2 mt-4">
+                                <thead class="">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">PAIS</th>
+                                        <th class="text-center">TOTAL CASOS</th>
+                                        <th class="text-center">MUERTES TOTALES</th>
+                                        <th class="text-center">TOTAL RECUPERADOS</th>
+                                        <th class="text-center">CASOS POR 1M DE HABITANTES</th>
+                                        <th class="text-center">MUERTES POR 1M DE HABITANTES</th>
+                                        <th class="text-center">CANTIDAD DE CONTAGIADOS POR MUERTE</th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody id="res" class="text-center">
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="col-xl-4 l-lg-5 col-md-8 col-sm-10">
+                            <h1>#QuedateEnCasa!</h1>
+                            <img src="https://www.prensalibre.com/wp-content/uploads/2020/03/Instagram-En-Casa-1-1.jpeg?quality=82&w=760&h=430&crop=1"
+                                class="img-thumbnail" alt="">
+                        </div>
+                    </div>
+                    <div class="row justify-content-center mt-4">
+                        <button class="btn btn-primary col-lg-12 col-xl-12 col-md-8 col-sm-8 mt-1" onclick="Get()">Procesar</button>   
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+</body>
+
+</html>
